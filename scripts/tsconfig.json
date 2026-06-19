@@ -1,0 +1,6 @@
+{
+  "include": [
+    "./**/*.ts"
+  ],
+  "extends": "../node_modules/mucklet-script/tsconfig.json"
+}

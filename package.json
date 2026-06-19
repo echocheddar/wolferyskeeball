@@ -1,0 +1,12 @@
+{
+  "name": "mucklet-script-project",
+  "scripts": {
+    "build": "mucklet-script build",
+    "deploy": "mucklet-script deploy",
+    "logs": "mucklet-script logs --follow"
+  },
+  "type": "module",
+  "dependencies": {
+    "mucklet-script": "^1.66.4"
+  }
+}
