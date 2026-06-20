@@ -116,6 +116,17 @@ export function onCharEvent(
             Room.describe(`${JSON.parse<Room.Char>(before).name} has left before the end of the game.`)
             Room.removeCommand("throw")
             Room.addCommand("start", new Command("start game"))
+            return
+        }
+        const iterator = Room.charIterator(CharState.Asleep)
+        while (iterator.isValid()) {
+            if (iterator.getID() == charId) {
+                Room.describe(`${JSON.parse<Room.Char>(before).name} has fallen asleep before the end of the game.`)
+                Room.removeCommand("throw")
+                Room.addCommand("start", new Command("start game"))
+                return
+            }
+            iterator.next()
         }
     }
 }
