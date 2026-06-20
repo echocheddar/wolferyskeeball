@@ -112,7 +112,7 @@ export function onCharEvent(
     before: string | null,
 ): void {
     if (players.includes(charId) && before !== null) {
-        if (after == null || JSON.parse<Room.Char>(after).state == CharState.Asleep) {
+        if (after == null /*|| JSON.parse<Room.Char>(after).state == CharState.Asleep*/) { //after.state is always asleep?
             Room.describe(`${JSON.parse<Room.Char>(before).name} has left before the end of the game.`)
             Room.removeCommand("throw")
             Room.addCommand("start", new Command("start game"))
@@ -180,13 +180,11 @@ export function onCommand(
         Room.removeCommand("start")
         scores.length = 0
         players.length = 0
-        let charIterator = Room.charIterator();
+        let charIterator = Room.charIterator(CharState.Awake); //This works for some reason.
         while (charIterator.isValid()) {
-//            if(charIterator.getChar().state == CharState.Awake) {
-                players.push(charIterator.getID())
-                scores.push(0)
-                charIterator.next()
-//            }
+            players.push(charIterator.getID())
+            scores.push(0)
+            charIterator.next()
         }
         currentBall = 0
         currentPlayer = 0
