@@ -111,10 +111,12 @@ export function onCharEvent(
     after: string | null,
     before: string | null,
 ): void {
-    if (after == null && before != null && players.includes(charId)) {
-        Room.describe(`${JSON.parse<Room.Char>(before).name} has left before the end of the game.`)
-        Room.removeCommand("throw")
-        Room.addCommand("start", new Command("start game"))
+    if (players.includes(charId) && before !== null) {
+        if (after == null || JSON.parse<Room.Char>(after).state == CharState.Asleep) {
+            Room.describe(`${JSON.parse<Room.Char>(before).name} has left before the end of the game.`)
+            Room.removeCommand("throw")
+            Room.addCommand("start", new Command("start game"))
+        }
     }
 }
 
@@ -180,9 +182,11 @@ export function onCommand(
         players.length = 0
         let charIterator = Room.charIterator();
         while (charIterator.isValid()) {
-            players.push(charIterator.getID())
-            scores.push(0)
-            charIterator.next()
+//            if(charIterator.getChar().state == CharState.Awake) {
+                players.push(charIterator.getID())
+                scores.push(0)
+                charIterator.next()
+//            }
         }
         currentBall = 0
         currentPlayer = 0

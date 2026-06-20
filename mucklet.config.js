@@ -33,7 +33,7 @@ const config = {
 	},
 	realm: {
 		/** URL to the realm API WebSocket endpoint. */
-		apiUrl: "wss://api.wolfery.com",
+		apiUrl: "wss://api.test.mucklet.com",
 
 		/**
 		 * For security reason, it is not possible to store the token in the config file.
