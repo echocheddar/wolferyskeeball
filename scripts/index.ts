@@ -5,6 +5,7 @@ let scores: i32[] = []
 let currentPlayer = 0
 let currentPlayerID: ID = ''
 let currentBall = 0
+let gameInProgress = false
 
 /**
  * onActivate is called each time a script is activated or updated. It is
@@ -111,11 +112,15 @@ export function onCharEvent(
     after: string | null,
     before: string | null,
 ): void {
+    if (!gameInProgress) {
+        return
+    }
     if (players.includes(charId) && before !== null) {
         if (after == null /*|| JSON.parse<Room.Char>(after).state == CharState.Asleep*/) { //after.state is always asleep?
             Room.describe(`${JSON.parse<Room.Char>(before).name} has left before the end of the game.`)
             Room.removeCommand("throw")
             Room.addCommand("start", new Command("start game"))
+            gameInProgress = false
             return
         }
         const iterator = Room.charIterator(CharState.Asleep)
@@ -124,6 +129,7 @@ export function onCharEvent(
                 Room.describe(`${JSON.parse<Room.Char>(before).name} has fallen asleep before the end of the game.`)
                 Room.removeCommand("throw")
                 Room.addCommand("start", new Command("start game"))
+                gameInProgress = false
                 return
             }
             iterator.next()
@@ -188,7 +194,6 @@ export function onCommand(
     cmdAction: CmdAction,
 ): void {
     if (cmdAction.keyword == "start") {
-        Room.removeCommand("start")
         scores.length = 0
         players.length = 0
         let charIterator = Room.charIterator(CharState.Awake); //This works for some reason.
@@ -197,15 +202,28 @@ export function onCommand(
             scores.push(0)
             charIterator.next()
         }
+        if (players.length == 0 ) {
+            cmdAction.error("There are no active players in the room to start a game.")
+            return
+        }
         currentBall = 0
         currentPlayer = 0
         currentPlayerID = players[0]
+        Room.removeCommand("start")
         Room.addCommand("throw", new Command("throw"))
         Room.describe("The scoreboard overhead lights up with a red neon glow.  After playing a jaunty tune three balls roll down in the lane in front of each player. (Players will go in room order)")
         Room.describe("Use `throw` to play")
+        gameInProgress = true
     }
     if (cmdAction.keyword == "throw") {
         currentPlayerID = players[currentPlayer]
+        if (Room.getChar(currentPlayerID) == null) {
+            cmdAction.error("Can't find current player!")
+            Room.removeCommand("throw")
+            Room.addCommand("start", new Command("start game"))
+            gameInProgress = false
+            return
+        }
         if (cmdAction.char.id != currentPlayerID) {
             Room.describe(`It is ${(<Room.Char>Room.getChar(currentPlayerID)).name}'s turn`)
         } else {
@@ -247,6 +265,7 @@ export function onCommand(
                 for (let i = 0; i < players.length; i++) {
                     Room.describe(`${(<Room.Char>Room.getChar(players[i])).name} : ${scores[i]}`)
                 }
+                gameInProgress = false
             }
         }
     }
